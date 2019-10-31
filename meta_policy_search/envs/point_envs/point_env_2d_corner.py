@@ -3,9 +3,8 @@ from meta_policy_search.envs.base import MetaEnv
 import numpy as np
 from gym.spaces import Box
 
-ITERATION_BOUND_1 = 200
-ITERATION_BOUND_2 = 600
-
+TASK_SIZE=4
+MAG = 2*np.sqrt(2)
 
 class MetaPointEnvCorner(MetaEnv):
     """
@@ -13,15 +12,18 @@ class MetaPointEnvCorner(MetaEnv):
     (one of the 4 points (-2,-2), (-2, 2), (2, -2), (2,2)) which are sampled with equal probability
     """
 
-    def __init__(self, reward_type='sparse', sparse_reward_radius=0.5, task_size=4):
+    def __init__(self, reward_type='sparse', sparse_reward_radius=0.5):
         assert reward_type in ['dense', 'dense_squared', 'sparse']
         self.reward_type = reward_type
         print("Point Env reward type is", reward_type)
         self.sparse_reward_radius = sparse_reward_radius
-        self.corners = [np.array([-2,-2]), np.array([2,-2]), np.array([-2,2]), np.array([2, 2])]
+        self.create_tasks()
         self.observation_space = Box(low=-np.inf, high=np.inf, shape=(2,))
         self.action_space = Box(low=-0.2, high=0.2, shape=(2,))
         self.counter = 0
+
+    def create_tasks(self):
+        self.corners = [MAG * np.array(np.cos((i + 0.5) * 2.0 * np.pi / self.task_size)) for i in range(self.task_size)]
 
     def step(self, action):
         """
