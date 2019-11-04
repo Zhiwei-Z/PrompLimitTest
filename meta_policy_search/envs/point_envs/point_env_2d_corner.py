@@ -3,8 +3,8 @@ from meta_policy_search.envs.base import MetaEnv
 import numpy as np
 from gym.spaces import Box
 
-TASK_SIZE=4
-MAG = 2 * np.sqrt(2)
+ITERATION_BOUND_1 = 200
+ITERATION_BOUND_2 = 600
 
 class MetaPointEnvCorner(MetaEnv):
     """
@@ -17,13 +17,10 @@ class MetaPointEnvCorner(MetaEnv):
         self.reward_type = reward_type
         print("Point Env reward type is", reward_type)
         self.sparse_reward_radius = sparse_reward_radius
-        self.create_tasks()
+        self.corners = [np.array([-2,-2]), np.array([2,-2]), np.array([-2,2]), np.array([2, 2])]
         self.observation_space = Box(low=-np.inf, high=np.inf, shape=(2,))
         self.action_space = Box(low=-0.2, high=0.2, shape=(2,))
         self.counter = 0
-
-    def create_tasks(self):
-        self.corners = [MAG * np.array(np.cos((i + 0.5) * 2.0 * np.pi / TASK_SIZE)) for i in range(TASK_SIZE)]
 
     def step(self, action):
         """
@@ -89,17 +86,17 @@ class MetaPointEnvCorner(MetaEnv):
     def log_diagnostics(self, *args):
         pass
 
-    """
-    do regular MAML when outter loop is not disabled;
-    do only rl when outter loop is disabled;
-    """
-    def sample_tasks(self, n_tasks, out_disabled=False):
-
-        if not out_disabled:
-            temp = self.corners[1:]
+    def sample_tasks(self, n_tasks):
+        self.counter += 1
+        if self.counter <= ITERATION_BOUND_1:
+            temp = self.corners[:2]
+            return [temp[idx] for idx in np.random.choice(range(len(temp)), size=n_tasks)]
+        elif self.counter <= ITERATION_BOUND_2:
+            temp = self.corners[:3]
             return [temp[idx] for idx in np.random.choice(range(len(temp)), size=n_tasks)]
         else:
-            return [self.corners[0] for _ in range(n_tasks)]
+            temp = self.corners
+            return [temp[idx] for idx in np.random.choice(range(len(temp)), size=n_tasks)]
 
     def set_task(self, task):
         self.goal = task
