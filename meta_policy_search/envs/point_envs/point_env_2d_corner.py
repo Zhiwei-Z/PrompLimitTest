@@ -23,7 +23,7 @@ class MetaPointEnvCorner(MetaEnv):
         self.counter = 0
 
     def create_tasks(self):
-        self.corners = [MAG * np.array(np.cos((i + 0.5) * 2.0 * np.pi / self.task_size)) for i in range(self.task_size)]
+        self.corners = [MAG * np.array(np.cos((i + 0.5) * 2.0 * np.pi / TASK_SIZE)) for i in range(TASK_SIZE)]
 
     def step(self, action):
         """
