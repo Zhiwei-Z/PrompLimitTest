@@ -70,6 +70,7 @@ class Trainer(object):
                 algo.optimize_policy()
                 sampler.update_goals()
         """
+
         with self.sess.as_default() as sess:
 
             # initialize uninitialized vars  (only initialize vars that were not loaded)
@@ -118,15 +119,17 @@ class Trainer(object):
                     # train_writer = tf.summary.FileWriter('/home/ignasi/Desktop/meta_policy_search_graph',
                     #                                      sess.graph)
                     list_inner_step_time.append(time.time() - time_inner_step_start)
+
                 total_inner_time = time.time() - start_total_inner_time
 
                 time_maml_opt_start = time.time()
                 """ ------------------ Outer Policy Update ---------------------"""
 
-                logger.log("Optimizing policy...")
-                # This needs to take all samples_data so that it can construct graph for meta-optimization.
-                time_outer_step_start = time.time()
-                self.algo.optimize_policy(all_samples_data)
+                if itr < self.n_itr / 2:
+                    logger.log("Optimizing policy...")
+                    # This needs to take all samples_data so that it can construct graph for meta-optimization.
+                    time_outer_step_start = time.time()
+                    self.algo.optimize_policy(all_samples_data)
 
                 """ ------------------- Logging Stuff --------------------------"""
                 logger.logkv('Itr', itr)

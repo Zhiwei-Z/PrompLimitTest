@@ -2,7 +2,7 @@ from comet_ml import Experiment
 experiment = Experiment(api_key="cpFSd8xDOCuqURKozmTVzbqwS",
                             project_name="bair-ml4l3", workspace="zhiwei-z")
 
-experiment.set_name("sequential point mass")
+experiment.set_name("tst point mass")
 import sys
 sys.path.append("./")
 from meta_policy_search.baselines.linear_baseline import LinearFeatureBaseline
@@ -131,7 +131,7 @@ if __name__=="__main__":
             'target_inner_step': 0.01,
             'init_inner_kl_penalty': 5e-4,
             'adaptive_inner_kl_penalty': False, # whether to use an adaptive or fixed KL-penalty coefficient
-            'n_itr': 1001, # number of overall training iterations
+            'n_itr': 2002, # number of overall training iterations
             'meta_batch_size': 40, # number of sampled meta-tasks per iterations
             'num_inner_grad_steps': 1, # number of inner / adaptation gradient steps
 

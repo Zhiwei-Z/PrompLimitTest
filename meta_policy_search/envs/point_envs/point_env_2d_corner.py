@@ -4,7 +4,7 @@ import numpy as np
 from gym.spaces import Box
 
 TASK_SIZE=4
-MAG = 2*np.sqrt(2)
+MAG = 2 * np.sqrt(2)
 
 class MetaPointEnvCorner(MetaEnv):
     """
@@ -89,17 +89,17 @@ class MetaPointEnvCorner(MetaEnv):
     def log_diagnostics(self, *args):
         pass
 
-    def sample_tasks(self, n_tasks):
-        self.counter += 1
-        if self.counter <= ITERATION_BOUND_1:
-            temp = self.corners[:2]
-            return [temp[idx] for idx in np.random.choice(range(len(temp)), size=n_tasks)]
-        elif self.counter <= ITERATION_BOUND_2:
-            temp = self.corners[:3]
+    """
+    do regular MAML when outter loop is not disabled;
+    do only rl when outter loop is disabled;
+    """
+    def sample_tasks(self, n_tasks, out_disabled=False):
+
+        if not out_disabled:
+            temp = self.corners[1:]
             return [temp[idx] for idx in np.random.choice(range(len(temp)), size=n_tasks)]
         else:
-            temp = self.corners
-            return [temp[idx] for idx in np.random.choice(range(len(temp)), size=n_tasks)]
+            return [self.corners[0] for _ in range(n_tasks)]
 
     def set_task(self, task):
         self.goal = task
