@@ -3,8 +3,10 @@ from meta_policy_search.envs.base import MetaEnv
 import numpy as np
 from gym.spaces import Box
 
-ITERATION_BOUND_1 = 200
-ITERATION_BOUND_2 = 600
+
+TASK_SIZE = 4
+MAG = 2 * np.sqrt(2)
+
 
 class MetaPointEnvCorner(MetaEnv):
     """
@@ -17,10 +19,9 @@ class MetaPointEnvCorner(MetaEnv):
         self.reward_type = reward_type
         print("Point Env reward type is", reward_type)
         self.sparse_reward_radius = sparse_reward_radius
-        self.corners = [np.array([-2,-2]), np.array([2,-2]), np.array([-2,2]), np.array([2, 2])]
+        self.corners = [MAG * np.array(np.cos((i + 0.5) * 2.0 * np.pi / TASK_SIZE)) for i in range(TASK_SIZE)]
         self.observation_space = Box(low=-np.inf, high=np.inf, shape=(2,))
         self.action_space = Box(low=-0.2, high=0.2, shape=(2,))
-        self.counter = 0
 
     def step(self, action):
         """
@@ -86,17 +87,12 @@ class MetaPointEnvCorner(MetaEnv):
     def log_diagnostics(self, *args):
         pass
 
-    def sample_tasks(self, n_tasks):
-        self.counter += 1
-        if self.counter <= ITERATION_BOUND_1:
-            temp = self.corners[:2]
-            return [temp[idx] for idx in np.random.choice(range(len(temp)), size=n_tasks)]
-        elif self.counter <= ITERATION_BOUND_2:
-            temp = self.corners[:3]
+    def sample_tasks(self, n_tasks, out_disabled=False):
+        if not out_disabled:
+            temp = self.corners[1:]
             return [temp[idx] for idx in np.random.choice(range(len(temp)), size=n_tasks)]
         else:
-            temp = self.corners
-            return [temp[idx] for idx in np.random.choice(range(len(temp)), size=n_tasks)]
+            return [self.corners[0] for _ in range(n_tasks)]
 
     def set_task(self, task):
         self.goal = task
