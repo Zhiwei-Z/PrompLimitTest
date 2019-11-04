@@ -62,7 +62,7 @@ class Trainer(object):
         Trains policy on env using algo
 
         Pseudocode::
-        
+
             for itr in n_itr:
                 for step in num_inner_grad_steps:
                     sampler.sample()
@@ -125,11 +125,11 @@ class Trainer(object):
                 time_maml_opt_start = time.time()
                 """ ------------------ Outer Policy Update ---------------------"""
 
-                if itr < self.n_itr / 2:
-                    logger.log("Optimizing policy...")
-                    # This needs to take all samples_data so that it can construct graph for meta-optimization.
-                    time_outer_step_start = time.time()
-                    self.algo.optimize_policy(all_samples_data)
+                # if itr < self.n_itr / 2:
+                logger.log("Optimizing policy...")
+                # This needs to take all samples_data so that it can construct graph for meta-optimization.
+                time_outer_step_start = time.time()
+                self.algo.optimize_policy(all_samples_data)
 
                 """ ------------------- Logging Stuff --------------------------"""
                 logger.logkv('Itr', itr)
@@ -153,7 +153,7 @@ class Trainer(object):
                 logger.dumpkvs()
 
         logger.log("Training finished")
-        self.sess.close()        
+        self.sess.close()
 
     def get_itr_snapshot(self, itr):
         """
