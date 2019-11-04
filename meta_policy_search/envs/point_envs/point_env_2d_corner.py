@@ -19,7 +19,8 @@ class MetaPointEnvCorner(MetaEnv):
         self.reward_type = reward_type
         print("Point Env reward type is", reward_type)
         self.sparse_reward_radius = sparse_reward_radius
-        self.corners = [MAG * np.array(np.cos((i + 0.5) * 2.0 * np.pi / TASK_SIZE)) for i in range(TASK_SIZE)]
+        self.corners = [np.array([MAG * np.cos((i + 0.5) * 2.0 * np.pi / TASK_SIZE),
+                                        MAG * np.sin((i + 0.5) * 2.0 * np.pi / TASK_SIZE)]) for i in range(TASK_SIZE)]
         self.observation_space = Box(low=-np.inf, high=np.inf, shape=(2,))
         self.action_space = Box(low=-0.2, high=0.2, shape=(2,))
 
