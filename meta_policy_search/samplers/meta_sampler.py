@@ -48,11 +48,11 @@ class MetaSampler(Sampler):
         else:
             self.vec_env = MetaIterativeEnvExecutor(env, self.meta_batch_size, self.envs_per_task, self.max_path_length)
 
-    def update_tasks(self):
+    def update_tasks(self, out_disabled=False):
         """
         Samples a new goal for each meta task
         """
-        tasks = self.env.sample_tasks(self.meta_batch_size)
+        tasks = self.env.sample_tasks(self.meta_batch_size, out_disabled)
         assert len(tasks) == self.meta_batch_size
         self.vec_env.set_tasks(tasks)
 
