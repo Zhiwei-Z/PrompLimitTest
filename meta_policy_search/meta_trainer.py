@@ -82,11 +82,11 @@ class Trainer(object):
                 logger.log("\n ---------------- Iteration %d ----------------" % itr)
                 self.experiment.set_step(itr)
                 logger.log("Sampling set of tasks/goals for this meta-batch...")
-                # if itr < self.n_itr / 2:
-                #     self.sampler.update_tasks()
-                #     self.policy.switch_to_pre_update()  # Switch to pre-update policy
-                # else:
-                self.sampler.update_tasks(True)
+                if itr < self.n_itr / 2:
+                    self.sampler.update_tasks()
+                    self.policy.switch_to_pre_update()  # Switch to pre-update policy
+                else:
+                    self.sampler.update_tasks(True)
 
                 all_samples_data, all_paths = [], []
                 list_sampling_time, list_inner_step_time, list_outer_step_time, list_proc_samples_time = [], [], [], []
@@ -126,18 +126,18 @@ class Trainer(object):
                 time_maml_opt_start = time.time()
                 """ ------------------ Outer Policy Update ---------------------"""
 
-                # if itr < self.n_itr:
-                #     logger.log("Optimizing policy...")
-                #     # This needs to take all samples_data so that it can construct graph for meta-optimization.
-                #     time_outer_step_start = time.time()
-                #     self.algo.optimize_policy(all_samples_data)
+                if itr < self.n_itr / 2:
+                    logger.log("Optimizing policy...")
+                    # This needs to take all samples_data so that it can construct graph for meta-optimization.
+                    time_outer_step_start = time.time()
+                    self.algo.optimize_policy(all_samples_data)
 
                 """ ------------------- Logging Stuff --------------------------"""
                 logger.logkv('Itr', itr)
                 logger.logkv('n_timesteps', self.sampler.total_timesteps_sampled)
 
-                # if itr < self.n_itr:
-                #     logger.logkv('Time-OuterStep', time.time() - time_outer_step_start)
+                if itr < self.n_itr / 2:
+                    logger.logkv('Time-OuterStep', time.time() - time_outer_step_start)
 
                 logger.logkv('Time-TotalInner', total_inner_time)
                 logger.logkv('Time-InnerStep', np.sum(list_inner_step_time))
