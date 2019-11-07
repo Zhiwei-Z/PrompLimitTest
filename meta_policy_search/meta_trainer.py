@@ -127,7 +127,7 @@ class Trainer(object):
                         #                                      sess.graph)
                         list_inner_step_time.append(time.time() - time_inner_step_start)
                 else:
-                    for step in range(self.num_inner_grad_steps * self.n_itr + 1 ):
+                    for step in range(50 + 1):
                         self.experiment.set_step(itr + step)
                         logger.log('** Step ' + str(step) + ' **')
 
@@ -154,7 +154,7 @@ class Trainer(object):
                         """ ------------------- Inner Policy Update --------------------"""
 
                         time_inner_step_start = time.time()
-                        if step < self.num_inner_grad_steps * self.num_inner_grad_steps * self.n_itr:
+                        if step < 50:
                             logger.log("Computing inner policy updates...")
                             self.algo._adapt(samples_data)
                         # train_writer = tf.summary.FileWriter('/home/ignasi/Desktop/meta_policy_search_graph',
