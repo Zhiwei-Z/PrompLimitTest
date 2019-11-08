@@ -4,7 +4,7 @@ import numpy as np
 from gym.spaces import Box
 
 
-TASK_SIZE = 4
+TASK_SIZE = 10
 MAG = 2 * np.sqrt(2)
 
 
