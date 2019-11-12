@@ -2,11 +2,11 @@ from comet_ml import Experiment
 experiment = Experiment(api_key="cpFSd8xDOCuqURKozmTVzbqwS",
                             project_name="bair-ml4l3", workspace="zhiwei-z")
 
-experiment.set_name("sequential point mass")
+experiment.set_name("hc randVel")
 import sys
 sys.path.append("./")
 from meta_policy_search.baselines.linear_baseline import LinearFeatureBaseline
-from meta_policy_search.envs.point_envs.point_env_2d_corner import MetaPointEnvCorner
+from meta_policy_search.envs.mujoco_envs.half_cheetah_rand_vel import HalfCheetahRandVelEnv
 from meta_policy_search.envs.normalized_env import normalize
 from meta_policy_search.meta_algos.pro_mp import ProMP
 from meta_policy_search.meta_trainer import Trainer
@@ -25,10 +25,8 @@ import time
 
 meta_policy_search_path = '/'.join(os.path.realpath(os.path.dirname(__file__)).split('/')[:-1])
 
-
-
 def main(config):
-
+    set_seed(config['seed'])
 
 
     baseline =  globals()[config['baseline']]() #instantiate baseline
@@ -107,7 +105,7 @@ if __name__=="__main__":
 
             'baseline': 'LinearFeatureBaseline',
 
-            'env': 'MetaPointEnvCorner',
+            'env': 'HalfCheetahRandVelEnv',
 
             # sampler config
             'rollouts_per_meta_task': 20,

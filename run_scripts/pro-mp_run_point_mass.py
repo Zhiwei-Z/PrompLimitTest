@@ -29,62 +29,65 @@ meta_policy_search_path = '/'.join(os.path.realpath(os.path.dirname(__file__)).s
 
 def main(config):
 
+    for i in range(10):
+        config['seed'] = i + 1
+        experiment
+        set_seed(config['seed'])
 
+        baseline =  globals()[config['baseline']]() #instantiate baseline
 
-    baseline =  globals()[config['baseline']]() #instantiate baseline
+        env = globals()[config['env']]() # instantiate env
+        env = normalize(env) # apply normalize wrapper to env
 
-    env = globals()[config['env']]() # instantiate env
-    env = normalize(env) # apply normalize wrapper to env
+        policy = MetaGaussianMLPPolicy(
+                name="meta-policy",
+                obs_dim=np.prod(env.observation_space.shape),
+                action_dim=np.prod(env.action_space.shape),
+                meta_batch_size=config['meta_batch_size'],
+                hidden_sizes=config['hidden_sizes'],
+            )
 
-    policy = MetaGaussianMLPPolicy(
-            name="meta-policy",
-            obs_dim=np.prod(env.observation_space.shape),
-            action_dim=np.prod(env.action_space.shape),
+        sampler = MetaSampler(
+            env=env,
+            policy=policy,
+            rollouts_per_meta_task=config['rollouts_per_meta_task'],  # This batch_size is confusing
             meta_batch_size=config['meta_batch_size'],
-            hidden_sizes=config['hidden_sizes'],
+            max_path_length=config['max_path_length'],
+            parallel=config['parallel'],
         )
 
-    sampler = MetaSampler(
-        env=env,
-        policy=policy,
-        rollouts_per_meta_task=config['rollouts_per_meta_task'],  # This batch_size is confusing
-        meta_batch_size=config['meta_batch_size'],
-        max_path_length=config['max_path_length'],
-        parallel=config['parallel'],
-    )
+        sample_processor = MetaSampleProcessor(
+            baseline=baseline,
+            discount=config['discount'],
+            gae_lambda=config['gae_lambda'],
+            normalize_adv=config['normalize_adv'],
+        )
 
-    sample_processor = MetaSampleProcessor(
-        baseline=baseline,
-        discount=config['discount'],
-        gae_lambda=config['gae_lambda'],
-        normalize_adv=config['normalize_adv'],
-    )
+        algo = ProMP(
+            policy=policy,
+            inner_lr=config['inner_lr'],
+            meta_batch_size=config['meta_batch_size'],
+            num_inner_grad_steps=config['num_inner_grad_steps'],
+            learning_rate=config['learning_rate'],
+            num_ppo_steps=config['num_promp_steps'],
+            clip_eps=config['clip_eps'],
+            target_inner_step=config['target_inner_step'],
+            init_inner_kl_penalty=config['init_inner_kl_penalty'],
+            adaptive_inner_kl_penalty=config['adaptive_inner_kl_penalty'],
+        )
 
-    algo = ProMP(
-        policy=policy,
-        inner_lr=config['inner_lr'],
-        meta_batch_size=config['meta_batch_size'],
-        num_inner_grad_steps=config['num_inner_grad_steps'],
-        learning_rate=config['learning_rate'],
-        num_ppo_steps=config['num_promp_steps'],
-        clip_eps=config['clip_eps'],
-        target_inner_step=config['target_inner_step'],
-        init_inner_kl_penalty=config['init_inner_kl_penalty'],
-        adaptive_inner_kl_penalty=config['adaptive_inner_kl_penalty'],
-    )
+        trainer = Trainer(
+            algo=algo,
+            policy=policy,
+            env=env,
+            sampler=sampler,
+            sample_processor=sample_processor,
+            n_itr=config['n_itr'],
+            num_inner_grad_steps=config['num_inner_grad_steps'],
+            experiment=experiment
+        )
 
-    trainer = Trainer(
-        algo=algo,
-        policy=policy,
-        env=env,
-        sampler=sampler,
-        sample_processor=sample_processor,
-        n_itr=config['n_itr'],
-        num_inner_grad_steps=config['num_inner_grad_steps'],
-        experiment=experiment
-    )
-
-    trainer.train()
+        trainer.train()
 
 if __name__=="__main__":
     idx = int(time.time())
