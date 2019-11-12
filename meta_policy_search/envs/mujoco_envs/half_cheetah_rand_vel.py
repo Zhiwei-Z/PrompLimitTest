@@ -10,8 +10,10 @@ class HalfCheetahRandVelEnv(MetaEnv, MujocoEnv, gym.utils.EzPickle):
         MujocoEnv.__init__(self, 'half_cheetah.xml', 5)
         gym.utils.EzPickle.__init__(self)
 
-    def sample_tasks(self, n_tasks):
-        return np.random.uniform(-5.0, 5.0, (n_tasks, ))
+    def sample_tasks(self, n_tasks, out_disabled=False):
+        if out_disabled:
+            return np.random.choice(7.0, n_tasks)
+        return np.random.uniform(0.0, 5.0, (n_tasks, ))
 
     def set_task(self, task):
         """

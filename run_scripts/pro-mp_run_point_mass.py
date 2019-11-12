@@ -29,9 +29,8 @@ meta_policy_search_path = '/'.join(os.path.realpath(os.path.dirname(__file__)).s
 
 def main(config):
 
-    for i in range(10):
+    for i in range(5):
         config['seed'] = i + 1
-        experiment
         set_seed(config['seed'])
 
         baseline =  globals()[config['baseline']]() #instantiate baseline
@@ -134,7 +133,7 @@ if __name__=="__main__":
             'target_inner_step': 0.01,
             'init_inner_kl_penalty': 5e-4,
             'adaptive_inner_kl_penalty': False, # whether to use an adaptive or fixed KL-penalty coefficient
-            'n_itr': 300, # number of overall training iterations
+            'n_itr': 0, # number of overall training iterations
             'meta_batch_size': 40, # number of sampled meta-tasks per iterations
             'num_inner_grad_steps': 1, # number of inner / adaptation gradient steps
 
