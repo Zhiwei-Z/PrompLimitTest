@@ -30,7 +30,7 @@ meta_policy_search_path = '/'.join(os.path.realpath(os.path.dirname(__file__)).s
 def main(config):
 
     config['seed'] = 4
-    experiment.log_metric("seed", 3)
+    experiment.log_metric("seed", config['seed'])
     set_seed(config['seed'])
 
     baseline =  globals()[config['baseline']]() #instantiate baseline
