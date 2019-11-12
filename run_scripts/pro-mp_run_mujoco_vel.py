@@ -26,7 +26,7 @@ import time
 meta_policy_search_path = '/'.join(os.path.realpath(os.path.dirname(__file__)).split('/')[:-1])
 
 def main(config):
-    config['seed'] = 2
+    config['seed'] = 3
     set_seed(config['seed'])
 
     experiment.log_metric("seed", config['seed'])
