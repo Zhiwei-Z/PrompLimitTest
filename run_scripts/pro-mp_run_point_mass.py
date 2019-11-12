@@ -29,7 +29,7 @@ meta_policy_search_path = '/'.join(os.path.realpath(os.path.dirname(__file__)).s
 
 def main(config):
 
-    config['seed'] = 3
+    config['seed'] = 4
     experiment.log_metric("seed", 3)
     set_seed(config['seed'])
 
