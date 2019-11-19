@@ -4,6 +4,10 @@ from meta_policy_search.utils import logger
 import gym
 from gym.envs.mujoco.mujoco_env import MujocoEnv
 
+TASKS1 = np.array([0, 0.2, 0.4, 0.6, 0.8])
+TASKS2 = np.array([0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8])
+TASKS3 = np.array([0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 2.8, 3.0])
+
 class HalfCheetahRandVelEnv(MetaEnv, MujocoEnv, gym.utils.EzPickle):
     def __init__(self):
         self.set_task(self.sample_tasks(1)[0])
@@ -11,9 +15,11 @@ class HalfCheetahRandVelEnv(MetaEnv, MujocoEnv, gym.utils.EzPickle):
         gym.utils.EzPickle.__init__(self)
 
     def sample_tasks(self, n_tasks, out_disabled=False):
+        task = TASKS1
         if out_disabled:
-            return np.random.choice(7.0, n_tasks)
-        return np.random.uniform(0.0, 5.0, (n_tasks, ))
+
+            return np.full(task[len(task) - 1] + 0.5, n_tasks)
+        return np.array([task[idx] for idx in np.random.choice(range(len(task)), size=n_tasks)])
 
     def set_task(self, task):
         """
