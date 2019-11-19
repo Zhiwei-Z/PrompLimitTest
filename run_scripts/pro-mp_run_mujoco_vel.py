@@ -26,10 +26,10 @@ import time
 meta_policy_search_path = '/'.join(os.path.realpath(os.path.dirname(__file__)).split('/')[:-1])
 
 def main(config):
-    config['seed'] = 4
+    # config['seed'] = 4
     set_seed(config['seed'])
 
-    experiment.log_metric("seed", config['seed'])
+    # experiment.log_metric("seed", config['seed'])
     baseline =  globals()[config['baseline']]() #instantiate baseline
 
     env = globals()[config['env']]() # instantiate env
