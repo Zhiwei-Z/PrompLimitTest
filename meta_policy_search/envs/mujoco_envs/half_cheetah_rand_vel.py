@@ -15,7 +15,7 @@ class HalfCheetahRandVelEnv(MetaEnv, MujocoEnv, gym.utils.EzPickle):
         gym.utils.EzPickle.__init__(self)
 
     def sample_tasks(self, n_tasks, out_disabled=False):
-        task = TASKS2
+        task = TASKS1
         if out_disabled:
 
             return np.full(n_tasks, -0.5)
