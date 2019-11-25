@@ -26,7 +26,7 @@ meta_policy_search_path = '/'.join(os.path.realpath(os.path.dirname(__file__)).s
 
 def main(config):
     # config['seed'] = 4
-    experiment.set_name("task2 neg promp")
+    experiment.set_name("task2 neg rl")
     set_seed(config['seed'])
     experiment.log_parameters(config)
     experiment.log_parameter("task num", 2)
