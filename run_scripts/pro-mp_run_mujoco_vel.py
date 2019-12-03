@@ -26,7 +26,7 @@ meta_policy_search_path = '/'.join(os.path.realpath(os.path.dirname(__file__)).s
 
 def main(config):
     # config['seed'] = 4ß
-    experiment.set_name("3 pos 2 neg ho neg")
+    experiment.set_name("3 pos 2 neg ho pos")
     set_seed(config['seed'])
     experiment.log_parameters(config)
     # experiment.log_parameter("task limit size", 3)

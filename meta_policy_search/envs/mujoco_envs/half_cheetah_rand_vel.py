@@ -21,8 +21,8 @@ class HalfCheetahRandVelEnv(MetaEnv, MujocoEnv, gym.utils.EzPickle):
         if out_disabled:
             # return np.full(n_tasks, -0.5)
 
-            # return np.full(n_tasks, task[len(task) - 1] + 0.5)
-            return np.full(n_tasks, task[0] - 0.5)
+            return np.full(n_tasks, task[len(task) - 1] + 0.5)
+            # return np.full(n_tasks, task[0] - 0.5)
         return np.array([task[idx] for idx in np.random.choice(range(len(task)), size=n_tasks)])
 
     def set_task(self, task):
