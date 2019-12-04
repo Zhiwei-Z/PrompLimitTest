@@ -26,7 +26,7 @@ meta_policy_search_path = '/'.join(os.path.realpath(os.path.dirname(__file__)).s
 
 def main(config):
     # config['seed'] = 4ß
-    experiment.set_name("bug test logging vel")
+    experiment.set_name("pos task only, logging vel")
     set_seed(config['seed'])
     experiment.log_parameters(config)
     # experiment.log_parameter("task limit size", 3)
@@ -132,7 +132,7 @@ if __name__=="__main__":
             'target_inner_step': 0.01,
             'init_inner_kl_penalty': 5e-4,
             'adaptive_inner_kl_penalty': False, # whether to use an adaptive or fixed KL-penalty coefficient
-            'n_itr': 0, # number of overall training iterations
+            'n_itr': 100, # number of overall training iterations
             'meta_batch_size': 40, # number of sampled meta-tasks per iterations
             'num_inner_grad_steps': 1, # number of inner / adaptation gradient steps
 
