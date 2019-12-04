@@ -127,6 +127,7 @@ class Trainer(object):
                         #                                      sess.graph)
                         list_inner_step_time.append(time.time() - time_inner_step_start)
                 else:
+                    self.algo.inner_rl = self.algo.inner_rl * 2
                     for step in range(50 + 1):
                         self.experiment.set_step(itr + step)
                         logger.log('** Step ' + str(step) + ' **')
