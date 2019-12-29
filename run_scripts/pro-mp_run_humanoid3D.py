@@ -16,6 +16,8 @@ import json
 import argparse
 import time
 
+from simAdapter import terrainRLSim
+
 meta_policy_search_path = '/'.join(os.path.realpath(os.path.dirname(__file__)).split('/')[:-1])
 
 def main(config):
@@ -23,27 +25,31 @@ def main(config):
 
 
     baseline =  globals()[config['baseline']]() #instantiate baseline
-
-    env = globals()[config['env']]() # instantiate env
-    env = normalize(env) # apply normalize wrapper to env
     
-    print("env.observation_space.shape: ", env.observation_space.shape)
+    env = terrainRLSim.getEnv(env_name=None, render=True)
+    # env = normalize(env) # apply normalize wrapper to env
+    
     policy = MetaGaussianMLPPolicy(
             name="meta-policy",
-            obs_dim=np.prod(env.observation_space.shape),
-            action_dim=np.prod(env.action_space.shape),
+            obs_dim=np.prod((196,)),
+            action_dim=np.prod((38,)),
             meta_batch_size=config['meta_batch_size'],
             hidden_sizes=config['hidden_sizes'],
         )
 
     sampler = MetaSampler(
-        env=('multiworld', config['env'], env),
+        env=('terrianrlSim', config['env']),
         policy=policy,
         rollouts_per_meta_task=config['rollouts_per_meta_task'],  # This batch_size is confusing
         meta_batch_size=config['meta_batch_size'],
         max_path_length=config['max_path_length'],
         parallel=config['parallel'],
     )
+    env = terrainRLSim.getEnv(env_name=config['env'], render=True)
+    # env = globals()[config['env']]() # instantiate env
+    env = normalize(env) # apply normalize wrapper to env
+    print ("env.observation_space.shape: ", env.observation_space.shape)
+    print ("env.action_space.shape: ", env.action_space.shape)
     sampler.set_env(env)
 
     sample_processor = MetaSampleProcessor(
@@ -95,24 +101,24 @@ if __name__=="__main__":
     else: # use default config
 
         config = {
-            'seed': 1,
+            'seed': 1234,
 
             'baseline': 'LinearFeatureBaseline',
 
-            'env': 'MetaPointEnvCorner',
+            'env': 'PD_Humanoid_3D_GRF_Mixed_1Sub_Imitate_30FPS_ObsFlat_v0',
 
             # sampler config
-            'rollouts_per_meta_task': 20,
-            'max_path_length': 100,
+            'rollouts_per_meta_task': 1,
+            'max_path_length': 256,
             'parallel': True,
 
             # sample processor config
-            'discount': 0.99,
-            'gae_lambda': 1,
+            'discount': 0.95,
+            'gae_lambda': 0.8,
             'normalize_adv': True,
 
             # policy config
-            'hidden_sizes': (64, 64),
+            'hidden_sizes': (256, 128),
             'learn_std': True, # whether to learn the standard deviation of the gaussian policy
 
             # ProMP config
@@ -121,10 +127,10 @@ if __name__=="__main__":
             'num_promp_steps': 5, # number of ProMp steps without re-sampling
             'clip_eps': 0.3, # clipping range
             'target_inner_step': 0.01,
-            'init_inner_kl_penalty': 5e-4,
+            'init_inner_kl_penalty': 5e-3,
             'adaptive_inner_kl_penalty': False, # whether to use an adaptive or fixed KL-penalty coefficient
             'n_itr': 1001, # number of overall training iterations
-            'meta_batch_size': 40, # number of sampled meta-tasks per iterations
+            'meta_batch_size': 4, # number of sampled meta-tasks per iterations
             'num_inner_grad_steps': 1, # number of inner / adaptation gradient steps
 
         }

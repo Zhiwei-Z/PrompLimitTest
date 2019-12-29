@@ -4,23 +4,15 @@ from meta_policy_search.utils import logger
 import gym
 from gym.envs.mujoco.mujoco_env import MujocoEnv
 
-# IterationBound1 = 200
-# IterationBound2 = 600
 
 class HalfCheetahRandDirecEnv(MetaEnv, MujocoEnv, gym.utils.EzPickle):
     def __init__(self, goal_direction=None):
         self.goal_direction = goal_direction if goal_direction else 1.0
         MujocoEnv.__init__(self, 'half_cheetah.xml', 5)
         gym.utils.EzPickle.__init__(self, goal_direction)
-        # self.counter = 0
 
     def sample_tasks(self, n_tasks):
         # for fwd/bwd env, goal direc is backwards if - 1.0, forwards if + 1.0
-        # self.counter += 1
-        # if self.counter < IterationBound1:
-        #     return np.random.choice((-1.0, -0.5), (n_tasks, ))
-        # if self.counter < IterationBound2:
-        #     return np.random.choice((-1.0, -0.5, 0.5), (n_tasks, ))
         return np.random.choice((-1.0, 1.0), (n_tasks, ))
 
     def set_task(self, task):

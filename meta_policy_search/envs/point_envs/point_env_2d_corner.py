@@ -4,10 +4,6 @@ import numpy as np
 from gym.spaces import Box
 
 
-TASK_SIZE = 20
-MAG = 2 * np.sqrt(2)
-
-
 class MetaPointEnvCorner(MetaEnv):
     """
     Simple 2D point meta environment. Each meta-task corresponds to a different goal / corner
@@ -19,8 +15,7 @@ class MetaPointEnvCorner(MetaEnv):
         self.reward_type = reward_type
         print("Point Env reward type is", reward_type)
         self.sparse_reward_radius = sparse_reward_radius
-        self.corners = [np.array([MAG * np.cos((i + 0.5) * 2.0 * np.pi / TASK_SIZE),
-                                        MAG * np.sin((i + 0.5) * 2.0 * np.pi / TASK_SIZE)]) for i in range(TASK_SIZE)]
+        self.corners = [np.array([-2,-2]), np.array([2,-2]), np.array([-2,2]), np.array([2, 2])]
         self.observation_space = Box(low=-np.inf, high=np.inf, shape=(2,))
         self.action_space = Box(low=-0.2, high=0.2, shape=(2,))
 
@@ -88,12 +83,8 @@ class MetaPointEnvCorner(MetaEnv):
     def log_diagnostics(self, *args):
         pass
 
-    def sample_tasks(self, n_tasks, out_disabled=False):
-        if not out_disabled:
-            temp = self.corners[1:]
-            return [temp[idx] for idx in np.random.choice(range(len(temp)), size=n_tasks)]
-        else:
-            return [self.corners[0] for _ in range(n_tasks)]
+    def sample_tasks(self, n_tasks):
+        return [self.corners[idx] for idx in np.random.choice(range(len(self.corners)), size=n_tasks)]
 
     def set_task(self, task):
         self.goal = task

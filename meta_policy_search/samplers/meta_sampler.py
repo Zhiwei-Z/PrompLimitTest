@@ -33,7 +33,7 @@ class MetaSampler(Sampler):
             parallel=False
             ):
         super(MetaSampler, self).__init__(env, policy, rollouts_per_meta_task, max_path_length)
-        assert hasattr(env, 'set_task')
+        # assert hasattr(env, 'set_task')
 
         self.envs_per_task = rollouts_per_meta_task if envs_per_task is None else envs_per_task
         self.meta_batch_size = meta_batch_size
@@ -52,7 +52,8 @@ class MetaSampler(Sampler):
         """
         Samples a new goal for each meta task
         """
-        tasks = self.env.sample_tasks(self.meta_batch_size, out_disabled)
+        tasks = self.env.sample_tasks(self.meta_batch_size)
+        print ("tasks: ", tasks)
         assert len(tasks) == self.meta_batch_size
         self.vec_env.set_tasks(tasks)
 
@@ -83,6 +84,7 @@ class MetaSampler(Sampler):
 
         # initial reset of envs
         obses = self.vec_env.reset()
+        print ("obses shape: ", np.array(obses).shape)
         
         while n_samples < self.total_samples:
             
@@ -95,6 +97,7 @@ class MetaSampler(Sampler):
             # step environments
             t = time.time()
             actions = np.concatenate(actions) # stack meta batch
+            # print ("actions: ", actions)
             next_obses, rewards, dones, env_infos = self.vec_env.step(actions)
             env_time += time.time() - t
 

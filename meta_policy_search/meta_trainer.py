@@ -3,6 +3,7 @@ import numpy as np
 import time
 from meta_policy_search.utils import logger
 
+
 class Trainer(object):
     """
     Performs steps of meta-policy search.
@@ -77,26 +78,23 @@ class Trainer(object):
             sess.run(tf.variables_initializer(uninit_vars))
 
             start_time = time.time()
-            for itr in range(self.start_itr, self.n_itr + 1):
+            for itr in range(self.start_itr, self.n_itr):
                 itr_start_time = time.time()
                 logger.log("\n ---------------- Iteration %d ----------------" % itr)
-                if itr < self.n_itr:
-                    self.experiment.set_step(itr)
                 logger.log("Sampling set of tasks/goals for this meta-batch...")
                 if itr == self.n_itr:
-                    self.sampler.update_tasks(True)
+                    self.sampler.update_tasks(False)
                 else:
                     self.sampler.update_tasks()
-
+                    
                 self.policy.switch_to_pre_update()  # Switch to pre-update policy
-
 
                 all_samples_data, all_paths = [], []
                 list_sampling_time, list_inner_step_time, list_outer_step_time, list_proc_samples_time = [], [], [], []
                 start_total_inner_time = time.time()
                 if itr < self.n_itr:
                     logger.log("NNNNOOOOORRRRMMMMAAAALLLL")
-                    for step in range(self.num_inner_grad_steps+1):
+                    for step in range(self.num_inner_grad_steps + 1):
                         logger.log('** Step ' + str(step) + ' **')
 
                         """ -------------------- Sampling --------------------------"""
@@ -111,7 +109,9 @@ class Trainer(object):
 
                         logger.log("Processing samples...")
                         time_proc_samples_start = time.time()
-                        samples_data = self.sample_processor.process_samples(paths, log='all', log_prefix='Step_%d-' % step, experiment=self.experiment)
+                        samples_data = self.sample_processor.process_samples(paths, log='all',
+                                                                             log_prefix='Step_%d-' % step,
+                                                                             experiment=self.experiment)
                         all_samples_data.append(samples_data)
                         list_proc_samples_time.append(time.time() - time_proc_samples_start)
 
@@ -127,7 +127,8 @@ class Trainer(object):
                         #                                      sess.graph)
                         list_inner_step_time.append(time.time() - time_inner_step_start)
                 else:
-                    # self.algo.inner_lr = self.algo.inner_lr * 2
+                    # Chelsea's suggestion
+                    self.algo.inner_lr = self.algo.inner_lr * 2
                     for step in range(50 + 1):
                         self.experiment.set_step(itr + step)
                         logger.log('** Step ' + str(step) + ' **')
@@ -166,19 +167,16 @@ class Trainer(object):
                 time_maml_opt_start = time.time()
                 """ ------------------ Outer Policy Update ---------------------"""
 
-                if itr < self.n_itr:
-                    logger.log("Optimizing policy...")
-                    # This needs to take all samples_data so that it can construct graph for meta-optimization.
-                    time_outer_step_start = time.time()
-                    self.algo.optimize_policy(all_samples_data)
+                logger.log("Optimizing policy...")
+                # This needs to take all samples_data so that it can construct graph for meta-optimization.
+                time_outer_step_start = time.time()
+                self.algo.optimize_policy(all_samples_data)
 
                 """ ------------------- Logging Stuff --------------------------"""
                 logger.logkv('Itr', itr)
                 logger.logkv('n_timesteps', self.sampler.total_timesteps_sampled)
 
-                if itr < self.n_itr:
-                    logger.logkv('Time-OuterStep', time.time() - time_outer_step_start)
-
+                logger.logkv('Time-OuterStep', time.time() - time_outer_step_start)
                 logger.logkv('Time-TotalInner', total_inner_time)
                 logger.logkv('Time-InnerStep', np.sum(list_inner_step_time))
                 logger.logkv('Time-SampleProc', np.sum(list_proc_samples_time))
@@ -202,7 +200,7 @@ class Trainer(object):
         """
         Gets the current policy and env for storage
         """
-        return dict(itr=itr, policy=self.policy, env=self.env, baseline=self.baseline)
+        return dict(itr=itr, policy=self.policy, env=None, baseline=self.baseline)
 
     def log_diagnostics(self, paths, prefix):
         # TODO: we aren't using it so far
