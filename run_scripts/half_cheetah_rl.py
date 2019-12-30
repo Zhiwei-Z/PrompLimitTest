@@ -14,7 +14,9 @@ from meta_policy_search.samplers.meta_sample_processor import MetaSampleProcesso
 from meta_policy_search.policies.meta_gaussian_mlp_policy import MetaGaussianMLPPolicy
 from meta_policy_search.utils import logger
 from meta_policy_search.utils.utils import set_seed, ClassEncoder
+from meta_policy_search.rl_trainer import RLTrainer
 
+import pickle
 import numpy as np
 import tensorflow as tf
 import os
@@ -38,13 +40,9 @@ def main(config):
     env = globals()[config['env']]() # instantiate env
     env = normalize(env) # apply normalize wrapper to env
 
-    policy = MetaGaussianMLPPolicy(
-            name="meta-policy",
-            obs_dim=np.prod(env.observation_space.shape),
-            action_dim=np.prod(env.action_space.shape),
-            meta_batch_size=config['meta_batch_size'],
-            hidden_sizes=config['hidden_sizes'],
-        )
+    with open('/saved_policies/mjvel.policy', 'rb') as policy_file:
+        policy = pickle.load(policy_file)
+        print("policy loaded")
 
     sampler = MetaSampler(
         env=env,
@@ -75,7 +73,7 @@ def main(config):
         adaptive_inner_kl_penalty=config['adaptive_inner_kl_penalty'],
     )
 
-    trainer = Trainer(
+    trainer = RLTrainer(
         algo=algo,
         policy=policy,
         env=env,
@@ -87,9 +85,7 @@ def main(config):
     )
 
     trainer.train()
-    with open('/saved_policies/mjvel.policy', 'wb') as policy_file:
-        pickle.dump(policy, policy_file)
-        print("saved policies")
+
 
 if __name__=="__main__":
     idx = int(time.time())

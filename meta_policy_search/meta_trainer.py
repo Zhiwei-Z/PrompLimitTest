@@ -79,6 +79,8 @@ class Trainer(object):
 
             start_time = time.time()
             for itr in range(self.start_itr, self.n_itr):
+                if self.experiment:
+                    self.experiment.set_step(itr)
                 itr_start_time = time.time()
                 logger.log("\n ---------------- Iteration %d ----------------" % itr)
                 logger.log("Sampling set of tasks/goals for this meta-batch...")

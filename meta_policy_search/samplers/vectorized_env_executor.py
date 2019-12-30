@@ -216,6 +216,7 @@ def worker(remote, parent_remote, env_pickle, n_envs, max_path_length, seed):
                 env = normalize(env) # apply normalize wrapper to env
                 envs.append(env)
     else:
+        env_pickle = pickle.dumps(env_pickle)
         envs = [pickle.loads(env_pickle) for _ in range(n_envs)]
     
     np.random.seed(seed)
