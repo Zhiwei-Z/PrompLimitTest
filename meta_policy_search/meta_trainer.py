@@ -82,86 +82,86 @@ class Trainer(object):
                 itr_start_time = time.time()
                 logger.log("\n ---------------- Iteration %d ----------------" % itr)
                 logger.log("Sampling set of tasks/goals for this meta-batch...")
-                if itr == self.n_itr:
-                    self.sampler.update_tasks(False)
-                else:
-                    self.sampler.update_tasks()
+                # if itr == self.n_itr:
+                #     self.sampler.update_tasks(False)
+                # else:
+                #     self.sampler.update_tasks()
+                self.sampler.update_tasks()
                     
                 self.policy.switch_to_pre_update()  # Switch to pre-update policy
 
                 all_samples_data, all_paths = [], []
                 list_sampling_time, list_inner_step_time, list_outer_step_time, list_proc_samples_time = [], [], [], []
                 start_total_inner_time = time.time()
-                if itr < self.n_itr:
-                    logger.log("NNNNOOOOORRRRMMMMAAAALLLL")
-                    for step in range(self.num_inner_grad_steps + 1):
-                        logger.log('** Step ' + str(step) + ' **')
 
-                        """ -------------------- Sampling --------------------------"""
+                for step in range(self.num_inner_grad_steps + 1):
+                    logger.log('** Step ' + str(step) + ' **')
 
-                        logger.log("Obtaining samples...")
-                        time_env_sampling_start = time.time()
-                        paths = self.sampler.obtain_samples(log=True, log_prefix='Step_%d-' % step)
-                        list_sampling_time.append(time.time() - time_env_sampling_start)
-                        all_paths.append(paths)
+                    """ -------------------- Sampling --------------------------"""
 
-                        """ ----------------- Processing Samples ---------------------"""
+                    logger.log("Obtaining samples...")
+                    time_env_sampling_start = time.time()
+                    paths = self.sampler.obtain_samples(log=True, log_prefix='Step_%d-' % step)
+                    list_sampling_time.append(time.time() - time_env_sampling_start)
+                    all_paths.append(paths)
 
-                        logger.log("Processing samples...")
-                        time_proc_samples_start = time.time()
-                        samples_data = self.sample_processor.process_samples(paths, log='all',
-                                                                             log_prefix='Step_%d-' % step,
-                                                                             experiment=self.experiment)
-                        all_samples_data.append(samples_data)
-                        list_proc_samples_time.append(time.time() - time_proc_samples_start)
+                    """ ----------------- Processing Samples ---------------------"""
 
-                        self.log_diagnostics(sum(list(paths.values()), []), prefix='Step_%d-' % step)
+                    logger.log("Processing samples...")
+                    time_proc_samples_start = time.time()
+                    samples_data = self.sample_processor.process_samples(paths, log='all',
+                                                                         log_prefix='Step_%d-' % step,
+                                                                         experiment=self.experiment)
+                    all_samples_data.append(samples_data)
+                    list_proc_samples_time.append(time.time() - time_proc_samples_start)
 
-                        """ ------------------- Inner Policy Update --------------------"""
+                    self.log_diagnostics(sum(list(paths.values()), []), prefix='Step_%d-' % step)
 
-                        time_inner_step_start = time.time()
-                        if step < self.num_inner_grad_steps:
-                            logger.log("Computing inner policy updates...")
-                            self.algo._adapt(samples_data)
-                        # train_writer = tf.summary.FileWriter('/home/ignasi/Desktop/meta_policy_search_graph',
-                        #                                      sess.graph)
-                        list_inner_step_time.append(time.time() - time_inner_step_start)
-                else:
-                    # Chelsea's suggestion
-                    self.algo.inner_lr = self.algo.inner_lr * 2
-                    for step in range(50 + 1):
-                        self.experiment.set_step(itr + step)
-                        logger.log('** Step ' + str(step) + ' **')
+                    """ ------------------- Inner Policy Update --------------------"""
 
-                        """ -------------------- Sampling --------------------------"""
-
-                        logger.log("Obtaining samples...")
-                        time_env_sampling_start = time.time()
-                        paths = self.sampler.obtain_samples(log=True, log_prefix='Step_%d-' % step)
-                        list_sampling_time.append(time.time() - time_env_sampling_start)
-                        all_paths.append(paths)
-
-                        """ ----------------- Processing Samples ---------------------"""
-
-                        logger.log("Processing samples...")
-                        time_proc_samples_start = time.time()
-                        samples_data = self.sample_processor.process_samples(paths, log='all',
-                                                                             log_prefix='Step_%d-' % step,
-                                                                             experiment=self.experiment)
-                        all_samples_data.append(samples_data)
-                        list_proc_samples_time.append(time.time() - time_proc_samples_start)
-
-                        self.log_diagnostics(sum(list(paths.values()), []), prefix='Step_%d-' % step)
-
-                        """ ------------------- Inner Policy Update --------------------"""
-
-                        time_inner_step_start = time.time()
-                        if step < 50:
-                            logger.log("Computing inner policy updates...")
-                            self.algo._adapt(samples_data)
-                        # train_writer = tf.summary.FileWriter('/home/ignasi/Desktop/meta_policy_search_graph',
-                        #                                      sess.graph)
-                        list_inner_step_time.append(time.time() - time_inner_step_start)
+                    time_inner_step_start = time.time()
+                    if step < self.num_inner_grad_steps:
+                        logger.log("Computing inner policy updates...")
+                        self.algo._adapt(samples_data)
+                    # train_writer = tf.summary.FileWriter('/home/ignasi/Desktop/meta_policy_search_graph',
+                    #                                      sess.graph)
+                    list_inner_step_time.append(time.time() - time_inner_step_start)
+                # else:
+                #     # Chelsea's suggestion
+                #     self.algo.inner_lr = self.algo.inner_lr * 2
+                #     for step in range(50 + 1):
+                #         self.experiment.set_step(itr + step)
+                #         logger.log('** Step ' + str(step) + ' **')
+                #
+                #         """ -------------------- Sampling --------------------------"""
+                #
+                #         logger.log("Obtaining samples...")
+                #         time_env_sampling_start = time.time()
+                #         paths = self.sampler.obtain_samples(log=True, log_prefix='Step_%d-' % step)
+                #         list_sampling_time.append(time.time() - time_env_sampling_start)
+                #         all_paths.append(paths)
+                #
+                #         """ ----------------- Processing Samples ---------------------"""
+                #
+                #         logger.log("Processing samples...")
+                #         time_proc_samples_start = time.time()
+                #         samples_data = self.sample_processor.process_samples(paths, log='all',
+                #                                                              log_prefix='Step_%d-' % step,
+                #                                                              experiment=self.experiment)
+                #         all_samples_data.append(samples_data)
+                #         list_proc_samples_time.append(time.time() - time_proc_samples_start)
+                #
+                #         self.log_diagnostics(sum(list(paths.values()), []), prefix='Step_%d-' % step)
+                #
+                #         """ ------------------- Inner Policy Update --------------------"""
+                #
+                #         time_inner_step_start = time.time()
+                #         if step < 50:
+                #             logger.log("Computing inner policy updates...")
+                #             self.algo._adapt(samples_data)
+                #         # train_writer = tf.summary.FileWriter('/home/ignasi/Desktop/meta_policy_search_graph',
+                #         #                                      sess.graph)
+                #         list_inner_step_time.append(time.time() - time_inner_step_start)
                 total_inner_time = time.time() - start_total_inner_time
 
                 time_maml_opt_start = time.time()
